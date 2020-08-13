@@ -23,11 +23,13 @@ function initFomanticElements() {
     });
     $('#settingsButton').popup({
         inline: true,
+        position: 'bottom left',
+        forcePosition: true,
         on: 'click'
     });
 }
 
 function regexRemoveMatches(regexString, source) {
     let re = new RegExp(regexString, 'g');
-    return source.replaceAll(re, "");
+    return source.replace(re, "");
 }

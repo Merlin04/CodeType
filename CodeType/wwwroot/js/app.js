@@ -1,7 +1,7 @@
 let objRef;
 
 document.addEventListener("keydown", evt => {
-    if(evt.key === '/') {
+    if(evt.key === '/' || evt.key === "'") {
         // Disable quick find on Firefox
         evt.preventDefault();
     }

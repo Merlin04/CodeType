@@ -1,0 +1,30 @@
+@using CodeType.Classes
+
+@* Not sure why but the ranges from C# 8 wouldn't work *@
+@* This code has to look like this to get rid of whitespace between the elements *@
+@for(int i = 0; i < IndentationLevel; i++)
+{<div class="codeLetter">&nbsp;</div>}@foreach (CodeLetter l in Letters.Take(CursorPosition))
+{<div class="@l.State.ToString() @(l.Letter == ' ' ? "spaceLetter " : "")codeLetter">@FormatHtmlLetter(l)</div>}
+<div id="cursor"></div>@foreach (CodeLetter l in Letters.Skip(CursorPosition))
+{<div class="@l.State.ToString() @(l.Letter == ' ' ? "spaceLetter " : "")codeLetter">@FormatHtmlLetter(l)</div>}
+
+@code {
+    
+    [Parameter]
+    public List<CodeLetter> Letters { get; set; }
+    
+    [Parameter]
+    public int CursorPosition { get; set; }
+    
+    [Parameter]
+    public int IndentationLevel { get; set; }
+
+    private static MarkupString FormatHtmlLetter(CodeLetter l)
+    {
+        if (l.Letter == ' ' && l.State == LetterState.Incorrect)
+        {
+            return (MarkupString) "_";
+        }
+        return (MarkupString) l.Letter.ToString().Replace(" ", "&nbsp;");
+    }
+}

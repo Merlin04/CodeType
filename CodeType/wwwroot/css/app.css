@@ -1,0 +1,139 @@
+﻿@font-face {
+    font-family: "JetBrains Mono";
+    src: url("JetBrainsMono-Regular.woff2") format("woff2");
+}
+
+#mainHeader {
+    padding-top: 4rem;
+    font-size: 4em;
+}
+
+#codeDisplay {
+    margin-top: 8rem;
+}
+
+#codeDisplay > .ui.preview.segment {
+    opacity: 30%;
+}
+
+#codeDisplay > .ui.typing.segment {
+    font-size: 1.5rem;
+}
+
+#cursor {
+    display: inline-block;
+    animation: fadeInAndOut 0.8s linear infinite;
+    width: 0.05em;
+    margin-left: -0.025em;
+    margin-right: -0.025em;
+    height: 0.8em;
+    background: white;
+}
+
+@keyframes fadeInAndOut {
+    0%, 100% {
+        opacity: 0;
+    }
+    50% {
+        opacity: 1;
+    }
+}
+
+.codeLetter {
+    display: inline-block;
+}
+
+.Correct.codeLetter {
+    color: green;
+}
+
+.Incorrect.codeLetter {
+    color: red;
+}
+
+.NotTyped.codeLetter {
+    color: grey;
+}
+
+.spaceLetter {
+    background-color: currentColor;
+    opacity: 20%;
+}
+
+.finishedText {
+    color: green !important;
+}
+
+#redoButton {
+    float: right;
+}
+
+.ui.selection.dropdown > .text {
+    color: white;
+}
+
+#settingsPopup > div:not(:first-child) {
+    margin-top: 1em;
+}
+
+.ui.toggle.checkbox > label > p {
+    font-size: 0.8rem;
+}
+
+#aboutText {
+    color: grey;
+    text-align: center;
+}
+
+.loadingCode {
+    height: 142px;
+}
+
+#displayLoader {
+    height: 100%;
+    display: flex;
+    align-items: center;
+}
+
+#linesDropdown > .menu {
+    border-radius: 0 0 .28571429rem .28571429rem;
+}
+
+.ui.dropdown.button.active {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.ui.buttons .or::before {
+    background-color: #222;
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.ui.buttons > .ui.basic.label {
+    display: flex;
+    align-items: center;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    margin-right: 0;
+    border-right: 0
+}
+
+#blazor-error-ui {
+    background: lightyellow;
+    color: black;
+    bottom: 0;
+    box-shadow: 0 -1px 2px rgba(0, 0, 0, 0.2);
+    display: none;
+    left: 0;
+    padding: 0.6rem 1.25rem 0.7rem 1.25rem;
+    position: fixed;
+    width: 100%;
+    z-index: 1000;
+}
+
+#blazor-error-ui .dismiss {
+    cursor: pointer;
+    position: absolute;
+    right: 0.75rem;
+    top: 0.5rem;
+}

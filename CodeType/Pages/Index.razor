@@ -1,0 +1,144 @@
+﻿@page "/"
+@using CodeType.Classes
+
+<h1 id="mainHeader" class="ui header">CodeType</h1>
+
+<div>
+    <div class="ui selection dropdown">
+        <input type="hidden" @bind="CodeSource">
+        <i class="dropdown icon"></i>
+        <div class="default text">Code source</div>
+        <div class="menu">
+            @foreach (CodeRepo repo in GitHub.CodeRepos)
+            {
+                <div class="item" data-value="@repo.Name">@repo.Name (@repo.Language.Name)</div>
+            }
+        </div>
+    </div>
+    <div id="linesDropdown" class="ui dropdown button">
+        <input type="hidden" @bind="TestLines">
+        <div class="text">@(TestLines == 0 ? 20 : TestLines) lines</div>
+        <div class="menu">
+            <div class="item" data-value="5">5</div>
+            <div class="item" data-value="10">10</div>
+            <div class="item" data-value="20">20</div>
+            <div class="item" data-value="30">30</div>
+            <div class="item" data-value="50">50</div>
+            <div class="item" data-value="75">75</div>
+        </div>
+    </div>
+    <div id="settingsButton" class="ui labeled icon button"><i class="settings icon"></i>Settings</div>
+    <div id="settingsPopup" class="ui popup">
+        <div class="ui header">Code source</div>
+        <div class="ui toggle checkbox">
+            <input type="checkbox" @bind="IncludeComments">
+            <label>
+                Include comments
+                <p>Include one-line comments in the code</p>
+            </label>
+        </div>
+        <div class="ui toggle checkbox">
+            <input type="checkbox" @bind="FromStart">
+            <label>
+                Code from start of file
+                <p>Get the code from the start of the file instead of a random start location</p>
+            </label>
+        </div>
+        <div class="ui header">Test options</div>
+        <div class="ui toggle checkbox">
+            <input type="checkbox" @bind="CompatibilityMode">
+            <label>
+                Compatibility mode
+                <p>Enable if your browser is slow while typing - may cause delay at end of test</p>
+            </label>
+        </div>
+        <div class="ui toggle checkbox">
+            <input type="checkbox" @bind="AutoAdvanceLine">
+            <label>
+                Auto-advance line
+                <p>Remove the need to press enter after you finish a line</p>
+            </label>
+        </div>
+        <div class="ui toggle checkbox">
+            <input type="checkbox" @bind="DisableNavigation">
+            <label>
+                Disable navigation
+                <p>Disable the arrow keys' ability to move the cursor</p>
+            </label>
+        </div>
+        <div id="aboutText">
+            Made by <a href="https://keypcb.xyz">KeyPCB</a>
+            <br/>
+            <a href="https://github.com/merlin04/CodeType">View on GitHub</a>
+        </div>
+    </div>
+
+    @if (!IsLoading)
+    {
+        <div id="redoButton">
+            <div class="ui buttons">
+                <div class="ui basic label">Redo</div>
+                @if (TestStopwatch.IsRunning || CurrentLine != 0 || !TestActive && !IsLoading)
+                {
+                    <div class="ui blue button" @onclick="async () => { await InitTest(false); }">same code</div>
+                    <div class="or"></div>
+                }
+                <div class="ui blue button" @onclick="async () => { await InitTest(); }">different code</div>
+            </div>
+        </div>
+    }
+</div>
+
+<div id="codeDisplay" class="ui @(IsLoading ? "loadingCode " : "")segments">
+    @if (IsLoading)
+    {
+        <div id="displayLoader" class="ui segment">
+            <div class="ui active centered inline loader"></div>
+        </div>
+    }
+    else
+    {
+        <div class="ui preview segment">
+            @if (CurrentLine != 0)
+            {
+                @((MarkupString) SampleSource[CurrentLine - 1].Replace(" ", "&nbsp"))
+            }
+        </div>
+        <div class="ui typing segment">
+            @if (Letters.Count > 0)
+            {
+                <TypingDisplay Letters="Letters[CurrentLine]" CursorPosition="CursorPosition" IndentationLevel="IndentationLevel"/>
+            }
+        </div>
+        <div class="ui preview segment">
+            @if (CurrentLine < SampleSource.Count - 1)
+            {
+                @((MarkupString) SampleSource[CurrentLine + 1].Replace(" ", "&nbsp"))
+            }
+        </div>
+        @if (!TestActive)
+        {
+            <div class="ui segment">
+                <div class="ui finishedText header">Finished!</div>
+                <div class="ui statistics">
+                    <div class="statistic">
+                        <div class="value">
+                            @CharactersPerMinute
+                        </div>
+                        <div class="label">
+                            Characters per minute
+                        </div>
+                    </div>
+                    <div class="statistic">
+                        <div class="value">
+                            @WordsPerMinute
+                        </div>
+                        <div class="label">
+                            Words per minute (estimate)
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+</div>

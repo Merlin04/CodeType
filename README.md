@@ -1,4 +1,5 @@
 # CodeType
+[![Netlify Status](https://api.netlify.com/api/v1/badges/b14fd009-6b58-4424-9aba-873635b2cb6d/deploy-status)](https://app.netlify.com/sites/codetype/deploys)
 ![Screenshot of CodeType](CodeType.png)
 A typing test for programmers
 

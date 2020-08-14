@@ -118,6 +118,10 @@
     border-right: 0
 }
 
+.ui.selection.dropdown {
+    margin-right: 0.25em;
+}
+
 #blazor-error-ui {
     background: lightyellow;
     color: black;

@@ -22,6 +22,7 @@ jobs:
     - name: Deploy to Github Pages
       uses: JamesIves/github-pages-deploy-action@releases/v3
       with:
+        persist-credentials: false
         ACCESS_TOKEN: ${{ secrets.GH_ACCESS_TOKEN }}
         REPOSITORY_NAME: Merlin04/codetype-ghpages
         BASE_BRANCH: master # The branch the action should deploy from.

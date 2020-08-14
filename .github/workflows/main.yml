@@ -13,8 +13,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-      with:
-        persist-credentials: false
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v1
       with:
@@ -24,9 +22,8 @@ jobs:
     - name: Deploy to Github Pages
       uses: JamesIves/github-pages-deploy-action@releases/v3
       with:
-        ACCESS_TOKEN: ${{ secrets.GH_ACCESS_TOKEN }}
-        REPOSITORY_NAME: Merlin04/codetype-ghpages
+        ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
         BASE_BRANCH: master # The branch the action should deploy from.
-        BRANCH: gh-pages # The branch the action should deploy to.
+        BRANCH: build # The branch the action should deploy to.
         FOLDER: build/wwwroot # The folder the action should deploy.
         SINGLE_COMMIT: true

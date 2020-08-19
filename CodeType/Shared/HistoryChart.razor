@@ -27,6 +27,8 @@
         // I can't get _plot.RefreshAsync to work
         _showPlot = false;
         StateHasChanged();
+        if (Data.Count == 0) return;
+        
         SetData();
         _showPlot = true;
         StateHasChanged();

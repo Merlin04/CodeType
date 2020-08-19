@@ -23,3 +23,5 @@ Here's a list of open source projects I used:
 - [AhmedEid3's Fomantic-UI dark theme](https://github.com/fomantic/Fomantic-UI/pull/1436)
 - [Newtonsoft.Json](https://github.com/JamesNK/Newtonsoft.Json)
 - [Blazor WebAssembly](https://dotnet.microsoft.com/apps/aspnet/web-apps/blazor)
+- [Blazored.LocalStorage](https://github.com/Blazored/LocalStorage)
+- [GG.Net](https://pablofrommars.github.io/)

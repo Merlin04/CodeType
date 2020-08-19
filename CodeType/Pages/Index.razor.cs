@@ -6,8 +6,11 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Timers;
+using Blazored.LocalStorage;
+using CodeType.Shared;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
+using Newtonsoft.Json;
 
 namespace CodeType.Pages
 {
@@ -15,6 +18,9 @@ namespace CodeType.Pages
     {
         [Inject] private IJSRuntime JSRuntime { get; set; }
         [Inject] private HttpClient Client { get; set; }
+        [Inject] private ILocalStorageService LocalStorage { get; set; }
+        
+        private HistoryChart HistoryChart { get; set; }
         
         /// <summary>
         /// The position of the cursor on the current line.
@@ -40,12 +46,72 @@ namespace CodeType.Pages
         private double CharactersPerMinute { get; set; }
         private double WordsPerMinute { get; set; }
         private bool IsLoading { get; set; } = true;
-        private bool AutoAdvanceLine { get; set; }
-        private bool DisableNavigation { get; set; }
-        private bool IncludeComments { get; set; }
-        private bool FromStart { get; set; }
-        private string CodeSource { get; set; } = GitHub.CodeRepos[0].Name;
-        private int TestLines { get; set; }
+        
+        private bool _autoAdvanceLine;
+        private bool AutoAdvanceLine
+        {
+            get => _autoAdvanceLine;
+            set
+            {
+                _autoAdvanceLine = value;
+                LocalStorage.SetItemAsync("AutoAdvanceLine", value);
+            }
+        }
+
+        private bool _disableNavigation;
+        private bool DisableNavigation
+        {
+            get => _disableNavigation;
+            set
+            {
+                _disableNavigation = value;
+                LocalStorage.SetItemAsync("DisableNavigation", value);
+            }
+        }
+
+        private bool _includeComments;
+        private bool IncludeComments
+        {
+            get => _includeComments;
+            set
+            {
+                _includeComments = value;
+                LocalStorage.SetItemAsync("IncludeComments", value);
+            }
+        }
+
+        private bool _fromStart;
+        private bool FromStart
+        {
+            get => _fromStart;
+            set
+            {
+                _fromStart = value;
+                LocalStorage.SetItemAsync("FromStart", value);
+            }
+        }
+        
+        private string _codeSource = GitHub.CodeRepos[0].Name;
+        private string CodeSource
+        {
+            get => _codeSource;
+            set
+            {
+                _codeSource = value;
+                LocalStorage.SetItemAsync("CodeSource", value);
+            }
+        }
+
+        private int _testLines;
+        private int TestLines
+        {
+            get => _testLines;
+            set
+            {
+                _testLines = value;
+                LocalStorage.SetItemAsync("TestLines", value);
+            }
+        }
 
         private bool _compatibilityMode;
 
@@ -63,6 +129,8 @@ namespace CodeType.Pages
                 {
                     CheckIfOverTimer.Enabled = true;
                 }
+
+                LocalStorage.SetItemAsync("CompatibilityMode", value);
             }
         }
         
@@ -73,6 +141,13 @@ namespace CodeType.Pages
         private Timer CheckIfOverTimer { get; set; } = new Timer(2000);
         
         private Stopwatch TestStopwatch { get; set; } = new Stopwatch();
+        
+        /// <summary>
+        /// The most recently added DateTime to History.
+        /// </summary>
+        private DateTime LatestKey { get; set; }
+        private Dictionary<DateTime, double> History { get; set; }
+        private bool ScoreRemovedFromHistory { get; set; }
 
         protected override async Task OnInitializedAsync()
         {
@@ -81,7 +156,9 @@ namespace CodeType.Pages
             CheckIfOverTimer.Elapsed += CheckIfOver;
             CheckIfOverTimer.AutoReset = true;
 
-            TestLines = 20;
+            _testLines = 20;
+
+            await LoadSettings();
             
             await InitTest();
         }
@@ -102,7 +179,43 @@ namespace CodeType.Pages
             await JSRuntime.InvokeVoidAsync("initObjectReference", DotNetObjectReference.Create(this));
         }
 
-        
+        /// <summary>
+        /// Load settings from LocalStorage.
+        /// </summary>
+        private async Task LoadSettings()
+        {
+            _includeComments = await LocalStorage.GetItemAsync<bool>("IncludeComments");
+            _fromStart = await LocalStorage.GetItemAsync<bool>("FromStart");
+            _compatibilityMode = await LocalStorage.GetItemAsync<bool>("CompatibilityMode");
+            _autoAdvanceLine = await LocalStorage.GetItemAsync<bool>("AutoAdvanceLine");
+            _disableNavigation = await LocalStorage.GetItemAsync<bool>("DisableNavigation");
+
+            string codeSourceLocalStorage = await LocalStorage.GetItemAsync<string>("CodeSource");
+            if (!(codeSourceLocalStorage is null))
+            {
+                _codeSource = codeSourceLocalStorage;
+                // Update dropdown
+                await JSRuntime.InvokeVoidAsync("setCodeSourceDropdown", _codeSource);
+            }
+            
+            int testLinesLocalStorage = await LocalStorage.GetItemAsync<int>("TestLines");
+            if (testLinesLocalStorage != 0)
+            {
+                _testLines = testLinesLocalStorage;
+            }
+
+            string historyJson = await LocalStorage.GetItemAsync<string>("History") ?? " {}";
+            History = JsonConvert.DeserializeObject<Dictionary<DateTime, double>>(historyJson.Substring(1));
+        }
+
+        /// <summary>
+        /// Save the current content of History into LocalStorage.
+        /// </summary>
+        private async Task SaveHistory()
+        {
+            await LocalStorage.SetItemAsync("History", " " + JsonConvert.SerializeObject(History));
+        }
+
         /// <summary>
         /// Called by the JavaScript whenever a key is pressed.
         /// </summary>
@@ -327,17 +440,19 @@ namespace CodeType.Pages
             {
                 CheckIfOverTimer.Enabled = true;
             }
+
+            ScoreRemovedFromHistory = false;
         }
 
-        private void CheckIfOver(object sender, ElapsedEventArgs e)
+        private async void CheckIfOver(object sender, ElapsedEventArgs e)
         {
-            CheckIfOver();
+            await CheckIfOver();
         }
         
         /// <summary>
         /// Check if the test should be over; if it should, end the test and calculate results.
         /// </summary>
-        private void CheckIfOver()
+        private async Task CheckIfOver()
         {
             if (!IsTestOver()) return;
             TestStopwatch.Stop();
@@ -346,9 +461,27 @@ namespace CodeType.Pages
             CharactersPerMinute = Math.Round(GetCharacterLength() / (CompatibilityMode ? TimeSpan.FromTicks(LastKeyTimestamp) : TestStopwatch.Elapsed).TotalMinutes, 2);
             // 4.7 is average English word length
             WordsPerMinute = Math.Round(CharactersPerMinute / 4.7);
-            
+
+            LatestKey = DateTime.Now;
+            History.Add(LatestKey, CharactersPerMinute);
+            await SaveHistory();
+
             TestActive = false;
             StateHasChanged();
+        }
+
+        private async Task RemoveLatestScore()
+        {
+            History.Remove(LatestKey);
+            await SaveHistory();
+            ScoreRemovedFromHistory = true;
+            HistoryChart.RefreshPlot();
+        }
+
+        private async Task ClearData()
+        {
+            await LocalStorage.ClearAsync();
+            await JSRuntime.InvokeVoidAsync("location.reload");
         }
 
         /// <summary>

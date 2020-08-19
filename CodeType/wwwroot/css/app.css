@@ -10,6 +10,7 @@
 
 #codeDisplay {
     margin-top: 8rem;
+    margin-bottom: 1rem;
 }
 
 #codeDisplay > .ui.preview.segment {
@@ -72,7 +73,7 @@
     color: white;
 }
 
-#settingsPopup > div:not(:first-child) {
+#settingsPopup > .ui.grid > .column > div:nth-child(n+3) {
     margin-top: 1em;
 }
 
@@ -83,6 +84,11 @@
 #aboutText {
     color: grey;
     text-align: center;
+    margin-top: 1rem;
+}
+
+#aboutText > .ui.button {
+    margin-bottom: 1rem;
 }
 
 .loadingCode {
@@ -120,6 +126,39 @@
 
 .ui.selection.dropdown {
     margin-right: 0.25em;
+}
+
+svg > .plot, .panel {
+    fill: #303030 !important;
+}
+svg circle {
+    fill: #375a7f;
+    stroke: #375a7f;
+}
+
+#results > .ui.statistics {
+    display: inline-block;
+    margin-top: 0;
+}
+
+#results > .ui.button {
+    float: right;
+}
+
+#settingsPopup {
+    max-width: 500px;
+}
+
+@media (max-width: 960px) {
+    #settingsPopup > .ui.grid {
+        flex-direction: column;
+    }
+    #settingsPopup > .ui.grid > .column {
+        width: 100% !important;
+    }
+    #settingsPopup {
+        max-width: 250px;
+    }
 }
 
 #blazor-error-ui {

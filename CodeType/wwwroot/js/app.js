@@ -33,3 +33,7 @@ function regexRemoveMatches(regexString, source) {
     let re = new RegExp(regexString, 'g');
     return source.replace(re, "");
 }
+
+function setCodeSourceDropdown(value) {
+    $('#codeSourceDropdown').dropdown('set selected', value);
+}

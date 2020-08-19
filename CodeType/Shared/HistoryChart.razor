@@ -1,0 +1,55 @@
+@using GGNet
+@using GGNet.Components
+@using GGNet.Elements
+@using CodeType.Classes
+
+@if (_showPlot)
+{
+    <Plot @ref="@_plot" Data="_data" T="KeyValuePair<DateTime, double>" TX="double" TY="double" RenderPolicy="RenderPolicy.Auto"/>
+}
+
+@code {
+
+    [Parameter]
+    public Dictionary<DateTime, double> Data { get; set; }
+
+    private Data<KeyValuePair<DateTime, double>, double, double> _data;
+    private Plot<KeyValuePair<DateTime, double>, double, double> _plot;
+    private bool _showPlot = true;
+
+    protected override void OnInitialized()
+    {
+        SetData();
+    }
+
+    public void RefreshPlot()
+    {
+        // I can't get _plot.RefreshAsync to work
+        _showPlot = false;
+        StateHasChanged();
+        SetData();
+        _showPlot = true;
+        StateHasChanged();
+    }
+
+    private void SetData()
+    {
+        Theme theme = Theme.Default();
+        theme.FontFamily = "\"Jetbrains Mono\", monospace";
+        theme.Tooltip.Background = "#375a7f";
+
+        _data = Plot.New(Data, x: o => o.Key.Subtract(new DateTime(1970, 1, 1)).TotalSeconds, y: o => o.Value)
+            .Geom_Point(tooltip: MakeTooltip, animation: true)
+            .Title("Scores over time")
+            .Scale_X_Continuous(formatter: new UnixTimestampFormatter(Data))
+            .Scale_Y_Continuous(limits: (0, null))
+            .YLab("Characters per Minute")
+            .Theme(theme);
+    }
+
+    private static string MakeTooltip(KeyValuePair<DateTime, double> point)
+    {
+        return point.Key.ToShortDateString() + " " + point.Key.ToShortTimeString() + "<br/>" + point.Value + " CPM<br/>" + Math.Round(point.Value / 4.7) + " WPM";
+    }
+
+}

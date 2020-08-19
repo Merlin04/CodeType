@@ -4,7 +4,7 @@
 <h1 id="mainHeader" class="ui header">CodeType</h1>
 
 <div>
-    <div class="ui selection dropdown">
+    <div id="codeSourceDropdown" class="ui selection dropdown">
         <input type="hidden" @bind="CodeSource">
         <i class="dropdown icon"></i>
         <div class="default text">Code source</div>
@@ -29,44 +29,52 @@
     </div>
     <div id="settingsButton" class="ui labeled icon button"><i class="settings icon"></i>Settings</div>
     <div id="settingsPopup" class="ui popup">
-        <div class="ui header">Code source</div>
-        <div class="ui toggle checkbox">
-            <input type="checkbox" @bind="IncludeComments">
-            <label>
-                Include comments
-                <p>Include one-line comments in the code</p>
-            </label>
-        </div>
-        <div class="ui toggle checkbox">
-            <input type="checkbox" @bind="FromStart">
-            <label>
-                Code from start of file
-                <p>Get the code from the start of the file instead of a random start location</p>
-            </label>
-        </div>
-        <div class="ui header">Test options</div>
-        <div class="ui toggle checkbox">
-            <input type="checkbox" @bind="CompatibilityMode">
-            <label>
-                Compatibility mode
-                <p>Enable if your browser is slow while typing - may cause delay at end of test</p>
-            </label>
-        </div>
-        <div class="ui toggle checkbox">
-            <input type="checkbox" @bind="AutoAdvanceLine">
-            <label>
-                Auto-advance line
-                <p>Remove the need to press enter after you finish a line</p>
-            </label>
-        </div>
-        <div class="ui toggle checkbox">
-            <input type="checkbox" @bind="DisableNavigation">
-            <label>
-                Disable navigation
-                <p>Disable the arrow keys' ability to move the cursor</p>
-            </label>
+        <div class="ui grid">
+            <div class="eight wide column">
+                <div class="ui header">Code source</div>
+                <div class="ui toggle checkbox">
+                    <input type="checkbox" @bind="IncludeComments">
+                    <label>
+                        Include comments
+                        <p>Include one-line comments in the code</p>
+                    </label>
+                </div>
+                <div class="ui toggle checkbox">
+                    <input type="checkbox" @bind="FromStart">
+                    <label>
+                        Code from start of file
+                        <p>Get the code from the start of the file instead of a random start location</p>
+                    </label>
+                </div>
+            </div>
+            <div class="eight wide column">
+                <div class="ui header">Test options</div>
+                <div class="ui toggle checkbox">
+                    <input type="checkbox" @bind="CompatibilityMode">
+                    <label>
+                        Compatibility mode
+                        <p>Enable if your browser is slow while typing - may cause delay at end of test</p>
+                    </label>
+                </div>
+                <div class="ui toggle checkbox">
+                    <input type="checkbox" @bind="AutoAdvanceLine">
+                    <label>
+                        Auto-advance line
+                        <p>Remove the need to press enter after you finish a line</p>
+                    </label>
+                </div>
+                <div class="ui toggle checkbox">
+                    <input type="checkbox" @bind="DisableNavigation">
+                    <label>
+                        Disable navigation
+                        <p>Disable the arrow keys' ability to move the cursor</p>
+                    </label>
+                </div>
+            </div>
         </div>
         <div id="aboutText">
+            <div class="ui red button" @onclick="ClearData">Clear stored data</div>
+            <br/>
             Made by <a href="https://keypcb.xyz">KeyPCB</a>
             <br/>
             <a href="https://github.com/merlin04/CodeType">View on GitHub</a>
@@ -118,8 +126,9 @@
         </div>
         @if (!TestActive)
         {
-            <div class="ui segment">
-                <div class="ui finishedText header">Finished!</div>
+            <div id="results" class="ui segment">
+                <h2 class="ui finishedText header">Finished!</h2>
+                <div class="ui divider"></div>
                 <div class="ui statistics">
                     <div class="statistic">
                         <div class="value">
@@ -138,6 +147,11 @@
                         </div>
                     </div>
                 </div>
+                @if (!ScoreRemovedFromHistory)
+                {
+                    <div class="ui button" @onclick="RemoveLatestScore">Remove from history</div>
+                }
+                <HistoryChart @ref="@HistoryChart" Data="History"/>
             </div>
         }
     }

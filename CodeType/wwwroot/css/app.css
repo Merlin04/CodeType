@@ -149,6 +149,10 @@ svg circle {
     max-width: 500px;
 }
 
+.active.dimmer {
+    background-color: #222;
+}
+
 @media (max-width: 960px) {
     #settingsPopup > .ui.grid {
         flex-direction: column;

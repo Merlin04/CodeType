@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>CodeType</title>
+    
+    <meta property="og:title" content="CodeType"/>
+    <meta property="og:type" content="website"/>
+    <meta property="og:image" content="https://codetype.keypcb.xyz/og.png">
+    <meta property="og:url" content="https://codetype.keypcb.xyz"/>
+    
+    <base href="/" />
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+    <link rel="preload" href="semantic/dist/themes/default/assets/fonts/icons.woff2" as="font">
+    <link rel="stylesheet" type="text/css" href="semantic/dist/semantic.min.css">
+    <script src="semantic/dist/semantic.min.js"></script>
+    <link href="css/app.css" rel="stylesheet" />
+</head>
+
+<body>
+    <app>
+        <div class="ui active dimmer">
+            <div class="ui loader"></div>
+        </div>
+    </app>
+
+    <div id="blazor-error-ui">
+        An unhandled error has occurred.
+        <a href="" class="reload">Reload</a>
+        <a class="dismiss">🗙</a>
+    </div>
+    <script src="_framework/blazor.webassembly.js"></script>
+    <script src="js/app.js"></script>
+
+    <!-- Fathom - simple website analytics - https://github.com/usefathom/fathom -->
+    <script>
+        (function(f, a, t, h, o, m){
+            a[h]=a[h]||function(){
+                (a[h].q=a[h].q||[]).push(arguments)
+            };
+            o=f.createElement('script'),
+                m=f.getElementsByTagName('script')[0];
+            o.async=1; o.src=t; o.id='fathom-script';
+            m.parentNode.insertBefore(o,m)
+        })(document, window, '//fathom.keypcb.xyz/tracker.js', 'fathom');
+        fathom('set', 'siteId', 'FTUQN');
+        fathom('trackPageview');
+    </script>
+    <!-- / Fathom -->
+</body>
+
+</html>
